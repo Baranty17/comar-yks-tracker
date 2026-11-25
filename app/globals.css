@@ -390,5 +390,77 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
+/* MOBİL YAZI BOYUTLARI */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+
+  .main-content h1 {
+    font-size: 21px !important;
+    line-height: 1.3;
+  }
+
+  .main-content h2 {
+    font-size: 18px !important;
+    line-height: 1.35;
+  }
+
+  .main-content h3 {
+    font-size: 15px !important;
+  }
+
+  .main-content p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .main-content .stat-value {
+    font-size: 23px !important;
+  }
+
+  .main-content .card,
+  .main-content .stat-card {
+    padding: 13px !important;
+  }
+
+  .main-content button {
+    font-size: 13px;
+  }
+
+  .main-content label {
+    font-size: 12px;
+  }
+
+  .sidebar .nav-item {
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content {
+    padding-top: 16px !important;
+  }
+
+  .main-content section {
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  .main-content .grid {
+    gap: 9px !important;
+  }
+
+  .main-content .stat-card p {
+    margin: 3px 0;
+  }
+
+  .main-content .stat-value {
+    margin: 9px 0 4px;
+  }
+}
+
+
+
 
 
