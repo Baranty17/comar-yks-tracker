@@ -461,6 +461,35 @@ a { color: inherit; text-decoration: none; }
 }
 
 
+/* ALT MENÜ YAZILARINI KÜÇÜLT */
+@media (max-width: 600px) {
+  .sidebar nav .nav-item {
+    font-size: 9px !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.2px !important;
+    padding: 4px 1px !important;
+    gap: 3px !important;
+  }
+
+  .sidebar nav .nav-item span {
+    font-size: 17px !important;
+    line-height: 17px !important;
+    font-weight: 400 !important;
+  }
+
+  .sidebar nav .nav-item:not(span) {
+    white-space: nowrap !important;
+  }
+
+  .sidebar nav {
+    height: 54px !important;
+    align-items: center !important;
+  }
+}
+
+
+
 
 
 
