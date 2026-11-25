@@ -233,8 +233,9 @@ export default function Home() {
             <button key={item.id}
               className={`nav-item ${tab === item.id ? "active" : ""}`}
               onClick={() => setTab(item.id)}>
-              <span style={{ fontSize: 21 }}>{item.icon}</span>
-<span>{item.label}</span>
+              <span style={{ fontSize: 22 }}>{item.icon}</span>
+
+<span className="nav-label">{item.label}</span>
             </button>
           ))}
         </nav>
