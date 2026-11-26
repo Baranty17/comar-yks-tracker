@@ -44,6 +44,7 @@ export default function Home() {
     if (error) {
       setError("Profil yüklenemedi: " + error.message);
       setProfile(null);
+      await restoreSession(id);
       return;
     }
 
@@ -110,6 +111,31 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [running, mode]);
+  
+async function restoreSession(studentId: string) {
+  const { data, error } = await supabase
+    .from("study_sessions")
+    .select("*")
+    .eq("student_id", studentId)
+    .in("status", ["running", "paused"])
+    .maybeSingle();
+
+  if (error) {
+    setSessionError("Oturum yüklenemedi: " + error.message);
+    return;
+  }
+
+  if (data) {
+    const restored = data as StudySession;
+    setSession(restored);
+    setMode(restored.mode);
+    setSubject(restored.subject);
+    setPhase(restored.phase);
+    setElapsed(restored.duration_seconds);
+    setRunning(restored.status === "running");
+  }
+}
+
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
