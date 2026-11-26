@@ -165,7 +165,147 @@ async function restoreSession(studentId: string) {
     setSeconds(next === "pomodoro" ? focusMinutes * 60 : 0);
   }
 
-  function resetTimer() {
+  
+function currentElapsed() {
+  if (!session) return 0;
+
+  if (session.status === "paused" || !session.last_started_at) {
+    return session.duration_seconds;
+  }
+
+  return session.duration_seconds + Math.max(
+    0,
+    Math.floor(
+      (Date.now() - new Date(session.last_started_at).getTime()) / 1000
+    )
+  );
+}
+
+async function startTimer() {
+  if (!profile || saving) return;
+
+  setSaving(true);
+  setSessionError("");
+
+  const now = new Date().toISOString();
+  const target = mode === "pomodoro" ? focusMinutes * 60 : null;
+
+  const { data, error } = await supabase
+    .from("study_sessions")
+    .insert({
+      student_id: profile.id,
+      subject,
+      mode,
+      duration_seconds: 0,
+      started_at: now,
+      ended_at: null,
+      status: "running",
+      last_started_at: now,
+      target_seconds: target,
+      phase: "focus",
+      break_seconds: breakMinutes * 60,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    setSessionError("Çalışma başlatılamadı: " + error.message);
+  } else {
+    setSession(data as StudySession);
+    setElapsed(0);
+    setRunning(true);
+  }
+
+  setSaving(false);
+}
+
+async function pauseTimer() {
+  if (!session || saving) return;
+
+  setSaving(true);
+
+  const duration = currentElapsed();
+
+  const { data, error } = await supabase
+    .from("study_sessions")
+    .update({
+      duration_seconds: duration,
+      status: "paused",
+      last_started_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", session.id)
+    .select()
+    .single();
+
+  if (error) {
+    setSessionError("Duraklatma kaydedilemedi: " + error.message);
+  } else {
+    setSession(data as StudySession);
+    setElapsed(duration);
+    setRunning(false);
+  }
+
+  setSaving(false);
+}
+
+async function resumeTimer() {
+  if (!session || saving) return;
+
+  setSaving(true);
+
+  const { data, error } = await supabase
+    .from("study_sessions")
+    .update({
+      status: "running",
+      last_started_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", session.id)
+    .select()
+    .single();
+
+  if (error) {
+    setSessionError("Devam edilemedi: " + error.message);
+  } else {
+    setSession(data as StudySession);
+    setRunning(true);
+  }
+
+  setSaving(false);
+}
+
+async function finishTimer() {
+  if (!session || saving) return;
+
+  setSaving(true);
+
+  const duration = currentElapsed();
+
+  const { error } = await supabase
+    .from("study_sessions")
+    .update({
+      duration_seconds: duration,
+      status: "completed",
+      ended_at: new Date().toISOString(),
+      last_started_at: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", session.id);
+
+  if (error) {
+    setSessionError("Çalışma kaydedilemedi: " + error.message);
+  } else {
+    setSession(null);
+    setElapsed(0);
+    setSeconds(mode === "pomodoro" ? focusMinutes * 60 : 0);
+    setRunning(false);
+    setPhase("focus");
+  }
+
+  setSaving(false);
+}
+ {
     setRunning(false);
     setSeconds(mode === "pomodoro" ? focusMinutes * 60 : 0);
   }
