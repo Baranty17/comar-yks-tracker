@@ -393,3 +393,20 @@ const inputStyle: React.CSSProperties = {
   border: "1px solid #263247",
   borderRadius: 10,
 };
+const cardStyle: React.CSSProperties = {
+  background: "#111a2b",
+  border: "1px solid #263247",
+  borderRadius: 18,
+  padding: 28,
+  boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+};
+
+const buttonStyle: React.CSSProperties = {
+  background: "#8b7cff",
+  color: "white",
+  border: "none",
+  borderRadius: 10,
+  padding: "13px 20px",
+  fontWeight: 700,
+  cursor: "pointer",
+};
