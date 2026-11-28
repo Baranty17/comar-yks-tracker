@@ -18,6 +18,13 @@ const menu = [
   { id: "analysis", icon: "↗", label: "Analizler" },
   { id: "notes", icon: "▧", label: "Yanlış Defteri" },
 ];
+function formatTime(totalSeconds: number) {
+  const safeSeconds = Math.max(0, totalSeconds);
+  const minutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
 
 export default function Home() {
   const [profile, setProfile] = useState<Profile | null>(null);
