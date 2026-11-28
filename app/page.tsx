@@ -144,31 +144,6 @@ export default function Home() {
     setSeconds(mode === "pomodoro" ? focusMinutes * 60 : 0);
   }
 
-  
-function currentElapsed() {
-  if (!session) return 0;
-
-  if (session.status === "paused" || !session.last_started_at) {
-    return session.duration_seconds;
-  }
-
-  return session.duration_seconds + Math.max(
-    0,
-    Math.floor(
-      (Date.now() - new Date(session.last_started_at).getTime()) / 1000
-    )
-  );
-}
-
-async function startTimer() {
-  if (!profile || saving) return;
-
-  setSaving(true);
-  setSessionError("");
-
-  const now = new Date().toISOString();
-  const target = mode === "pomodoro" ? focusMinutes * 60 : null;
-
 
   if (!profile) {
     return (
