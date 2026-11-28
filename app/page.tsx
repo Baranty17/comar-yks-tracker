@@ -44,7 +44,6 @@ export default function Home() {
     if (error) {
       setError("Profil yüklenemedi: " + error.message);
       setProfile(null);
-      await restoreSession(id);
       return;
     }
 
@@ -111,31 +110,6 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [running, mode]);
-  
-async function restoreSession(studentId: string) {
-  const { data, error } = await supabase
-    .from("study_sessions")
-    .select("*")
-    .eq("student_id", studentId)
-    .in("status", ["running", "paused"])
-    .maybeSingle();
-
-  if (error) {
-    setSessionError("Oturum yüklenemedi: " + error.message);
-    return;
-  }
-
-  if (data) {
-    const restored = data as StudySession;
-    setSession(restored);
-    setMode(restored.mode);
-    setSubject(restored.subject);
-    setPhase(restored.phase);
-    setElapsed(restored.duration_seconds);
-    setRunning(restored.status === "running");
-  }
-}
-
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
@@ -165,6 +139,11 @@ async function restoreSession(studentId: string) {
     setSeconds(next === "pomodoro" ? focusMinutes * 60 : 0);
   }
 
+  function resetTimer() {
+    setRunning(false);
+    setSeconds(mode === "pomodoro" ? focusMinutes * 60 : 0);
+  }
+
   
 function currentElapsed() {
   if (!session) return 0;
@@ -190,157 +169,6 @@ async function startTimer() {
   const now = new Date().toISOString();
   const target = mode === "pomodoro" ? focusMinutes * 60 : null;
 
-  const { data, error } = await supabase
-    .from("study_sessions")
-    .insert({
-      student_id: profile.id,
-      subject,
-      mode,
-      duration_seconds: 0,
-      started_at: now,
-      ended_at: null,
-      status: "running",
-      last_started_at: now,
-      target_seconds: target,
-      phase: "focus",
-      break_seconds: breakMinutes * 60,
-    })
-    .select()
-    .single();
-
-  if (error) {
-    setSessionError("Çalışma başlatılamadı: " + error.message);
-  } else {
-    setSession(data as StudySession);
-    setElapsed(0);
-    setRunning(true);
-  }
-
-  setSaving(false);
-}
-
-async function pauseTimer() {
-  if (!session || saving) return;
-
-  setSaving(true);
-
-  const duration = currentElapsed();
-
-  const { data, error } = await supabase
-    .from("study_sessions")
-    .update({
-      duration_seconds: duration,
-      status: "paused",
-      last_started_at: null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", session.id)
-    .select()
-    .single();
-
-  if (error) {
-    setSessionError("Duraklatma kaydedilemedi: " + error.message);
-  } else {
-    setSession(data as StudySession);
-    setElapsed(duration);
-    setRunning(false);
-  }
-
-  setSaving(false);
-}
-
-async function resumeTimer() {
-  if (!session || saving) return;
-
-  setSaving(true);
-
-  const { data, error } = await supabase
-    .from("study_sessions")
-    .update({
-      status: "running",
-      last_started_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", session.id)
-    .select()
-    .single();
-
-  if (error) {
-    setSessionError("Devam edilemedi: " + error.message);
-  } else {
-    setSession(data as StudySession);
-    setRunning(true);
-  }
-
-  setSaving(false);
-}
-
-async function finishTimer() {
-  if (!session || saving) return;
-
-  setSaving(true);
-
-  const duration = currentElapsed();
-
-  const { error } = await supabase
-    .from("study_sessions")
-    .update({
-      duration_seconds: duration,
-      status: "completed",
-      ended_at: new Date().toISOString(),
-      last_started_at: null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", session.id);
-
-  if (error) {
-    setSessionError("Çalışma kaydedilemedi: " + error.message);
-  } else {
-    setSession(null);
-    setElapsed(0);
-    setSeconds(mode === "pomodoro" ? focusMinutes * 60 : 0);
-    setRunning(false);
-    setPhase("focus");
-  }
-
-  setSaving(false);
-}
- {
-    setRunning(false);
-    setSeconds(mode === "pomodoro" ? focusMinutes * 60 : 0);
-  }
-
-  function formatTime(value: number) {
-    const h = Math.floor(value / 3600);
-    const m = Math.floor((value % 3600) / 60);
-    const s = value % 60;
-
-    return [h, m, s]
-      .map((x) => String(x).padStart(2, "0"))
-      .join(":");
-  }
-
-  const cardStyle: React.CSSProperties = {
-    background: "#111522",
-    border: "1px solid #252c40",
-    borderRadius: 17,
-    padding: 22,
-  };
-
-  const buttonStyle: React.CSSProperties = {
-    background: "#7868f5",
-    color: "white",
-    border: 0,
-    borderRadius: 10,
-    padding: "12px 17px",
-    fontWeight: 700,
-  };
-
-  if (loading) {
-    return <main className="container" style={{ padding: 40 }}>
-      Yükleniyor...
-    </main>;
-  }
 
   if (!profile) {
     return (
